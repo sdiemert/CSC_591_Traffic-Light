@@ -33,5 +33,13 @@ public class TrafficLightModel {
 		}
 			
 	}
+	
+	public Light[] lightsAsArray(){
+		
+		Light[]  L = {l1, l3, l2, l4};
+		
+		return L;
+		
+	}
 
 }

@@ -1,6 +1,7 @@
 
 import graphics.DisplayManager;
-import trafficLight.TrafficLight;
+import trafficLight.*;
+import trafficLight.model.*;
 
 public class Driver {
 
@@ -8,9 +9,11 @@ public class Driver {
 		
 		System.out.println("Starting...");
 		
-		TrafficLight tl = new TrafficLight("T1"); 
+		TrafficLightModel tlm = new TrafficLightModel();
 		
-		DisplayManager dm = new DisplayManager(); 
+		TrafficLight tl = new TrafficLight("T1",tlm); 
+		
+		DisplayManager dm = new DisplayManager(tlm); 
 		
 		tl.setDisplay(dm);
 		

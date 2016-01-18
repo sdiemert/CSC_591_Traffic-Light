@@ -11,18 +11,25 @@ public class DisplayManager {
 	Canvas canvas;
 
 	public DisplayManager() {
+		this.canvas = new Canvas();
+		init();
+	}
+	
+	public DisplayManager(TrafficLightModel tlm){
+		this.canvas = new Canvas(tlm);
+		init();
 		
+	}
+
+	private void init() {
 		this.frame = new Display("Traffic Light"); 
 		this.frame.setSize(600, 600);
-		
-		this.canvas = new Canvas();
-		
+
 		this.frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
             System.exit(0);
           }
 		});
-		
 	}
 	
 	public void update(){

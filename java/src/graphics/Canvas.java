@@ -34,8 +34,12 @@ public class Canvas extends JComponent {
 	TrafficLightModel model;
 	
 	public Canvas(){
-		  super(); 
-			  
+		  super(); 	  
+	}
+	
+	public Canvas(TrafficLightModel m){
+		  super(); 	  
+		  this.model = m;
 	}
 	
 	public void paint(Graphics g) {
@@ -49,6 +53,8 @@ public class Canvas extends JComponent {
 	      g.fillRect(light3X, light3Y, lightWidth, lightHeight);
 	      g.fillRect(light4X, light4Y, lightHeight, lightWidth);
 	      
+	      
+	      // Gross code below here....needs refactor....
 	      
 	      switch(this.model.l1.getState()){
 	      	case RED:
@@ -116,8 +122,7 @@ public class Canvas extends JComponent {
 	      
 	  }
 	  
-	  public void adjust(){
-	  }
+	public void adjust(){}
 
 	public void updateModel(TrafficLightModel tlm) {	
 		this.model = tlm;	
