@@ -46,9 +46,11 @@ public class TrafficLight implements Runnable {
 		int i = 0;
 		
 		for (String s : input.split(",")){
+			
 			s = s.trim();
 			this.tlm.lightsAsArray()[i].state = LightState.fromInteger(Integer.parseInt(s));
 			i++;
+			
 		}
 		
 		dm.update();

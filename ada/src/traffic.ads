@@ -1,8 +1,10 @@
+with Ada.Real_Time; use Ada.Real_Time;
 package Traffic
     with SPARK_Mode
 is
 
     type Light_State is (GREEN, YELLOW, RED);
+    type Event is (EVENT_NS_GREEN, EVENT_NS_RED, NO_EVENT);
 
     type Traffic_State is record
 
@@ -12,6 +14,29 @@ is
         Light_WE : Light_State := RED;
 
     end record;
+
+    type System_State is record
+
+        T_State         : Traffic_State;
+        Next_Event_Time : Integer := 0;
+        Next_Event      : Event   := NO_EVENT;
+
+    end record;
+
+    function NS_Safety_Traffic_Directions(S : Traffic_State) return Boolean
+      is ( if S.Light_NS = GREEN or S.Light_SN = Green then S.Light_EW = RED and S.Light_WE = RED);
+
+    function EW_Safety_Traffic_Directions(S : Traffic_State) return Boolean
+      is ( if S.Light_EW = GREEN or S.Light_WE = Green  then S.Light_NS = RED and S.Light_SN = RED);
+
+    function Safety_Traffic_Directions(S : Traffic_State) return Boolean
+    is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
+
+
+    procedure Control_Traffic( S : in out System_State; Curr : Seconds_Count)
+      with
+        Pre => Safety_Traffic_Directions(S.T_State),
+        Post => Safety_Traffic_Directions(S.T_State);
 
     function Make_State( NS, SN, EW, WE : Light_State) return Traffic_State
       with

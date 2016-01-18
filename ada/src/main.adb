@@ -1,9 +1,8 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Traffic; use Traffic;
+with Ada.Real_Time; use Ada.Real_Time;
 
 procedure Main is
-
-    I : Integer := 0;
 
     procedure Write_State( State : Traffic_State) is
 
@@ -16,26 +15,30 @@ procedure Main is
 
     end Write_State;
 
-    S : Traffic_State;
+    function Make_Seconds(T : in Time) return Seconds_Count
+    is
+        Other : Time_Span;
+        Secs : Seconds_Count;
+    begin
+
+        Split(T, Secs, Other);
+
+        return Secs;
+
+    end Make_Seconds;
+
+    S : System_State;
+    Current : Time;
 
 begin
 
-   loop
+    loop
 
-        if I = 1 then
-            S := NS_Green(EW_Red(S));
-        elsif I = 2 then
-            S := EW_Green(NS_Red(S));
-        else
-            S := EW_Red(NS_Red(S));
-        end if;
-
-        Write_State(S);
-
-        I := (I + 1) mod 3;
-
-
-      delay 1.0;
+        Current := Clock;
+        Put_Line(Seconds_Count'Image(Make_Seconds(Current)));
+        Control_Traffic(S => S, Curr => Make_Seconds(Current));
+        Write_State(S.T_State);
+        delay 0.25;
 
    end loop;
 

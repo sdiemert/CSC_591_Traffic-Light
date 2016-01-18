@@ -2,6 +2,19 @@ package body Traffic
   with SPARK_Mode
 is
 
+    procedure Control_Traffic(S : in out System_State; Curr : Seconds_Count) is
+
+    begin
+
+        if Curr mod 2 = 0 then
+            S.T_State := NS_Green(EW_Red(S.T_State));
+        else
+            S.T_State := EW_Green(NS_Red(S.T_State));
+        end if;
+
+    end Control_Traffic;
+
+
     function Make_State(NS, SN, EW, WE : Light_State) return Traffic_State
     is
         Ts : Traffic_State;
