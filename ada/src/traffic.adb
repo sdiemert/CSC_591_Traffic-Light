@@ -61,7 +61,7 @@ is
         return (case S is
                     when GREEN => 0,
                     when YELLOW => 1,
-		            when RED => 2
+		    when RED => 2
                );
     end State_To_Number;
 

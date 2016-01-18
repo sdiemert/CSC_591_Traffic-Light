@@ -35,7 +35,7 @@ begin
     loop
 
         Current := Clock;
-        Put_Line(Seconds_Count'Image(Make_Seconds(Current)));
+        --Put_Line(Seconds_Count'Image(Make_Seconds(Current)));
         Control_Traffic(S => S, Curr => Make_Seconds(Current));
         Write_State(S.T_State);
         delay 0.25;

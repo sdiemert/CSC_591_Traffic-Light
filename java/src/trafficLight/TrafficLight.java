@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import graphics.DisplayManager;
 import trafficLight.model.*;
@@ -62,6 +64,9 @@ public class TrafficLight implements Runnable {
 
 		String line = "";
 		
+		 Pattern p = Pattern.compile("[0-9]\\s,[0-9]\\s,[0-9]\\s,[0-9]\\s?");
+		 Matcher m;
+		
 		try {
 			
 			Process process = new ProcessBuilder(
@@ -72,9 +77,17 @@ public class TrafficLight implements Runnable {
 			BufferedReader br 		= new BufferedReader(isr);
 							
 			while ((line = br.readLine()) != null) {				
-				  line = line.trim();	  
+				  line = line.trim();
+				  
+				  m = p.matcher(line);
+				  
 				  System.out.println(line);
-				  this.updateModel(line);
+				  //System.out.println(m.matches());
+				  
+				  //if(m.matches()){
+
+					  this.updateModel(line);
+				  //}
 				  Thread.sleep(100);				  
 			}
 

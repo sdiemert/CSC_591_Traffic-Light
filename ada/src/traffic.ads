@@ -18,7 +18,7 @@ is
     type System_State is record
 
         T_State         : Traffic_State;
-        Next_Event_Time : Integer := 0;
+        Next_Event_Time : Seconds_Count := 0;
         Next_Event      : Event   := NO_EVENT;
 
     end record;
