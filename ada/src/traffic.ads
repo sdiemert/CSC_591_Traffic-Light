@@ -4,7 +4,12 @@ package Traffic
 is
 
     type Light_State is (GREEN, YELLOW, RED);
-    type Event is (EVENT_NS_GREEN, EVENT_NS_RED, EVENT_NS_YELLOW, NO_EVENT);
+
+    type Event is (
+                   EVENT_NS_GREEN, EVENT_NS_RED, EVENT_NS_YELLOW,
+                   EVENT_EW_GREEN, EVENT_EW_RED, EVENT_EW_YELLOW,
+                   NO_EVENT
+                  );
 
     type Traffic_State is record
 

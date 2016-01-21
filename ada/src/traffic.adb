@@ -10,6 +10,9 @@ is
                           when EVENT_NS_GREEN  => NS_Green(State => S.T_State),
                           when EVENT_NS_YELLOW => NS_Yellow(State => S.T_State),
                           when EVENT_NS_RED    => NS_Red(State => S.T_State),
+                          when EVENT_EW_RED    => EW_Red(State => S.T_State),
+                          when EVENT_EW_GREEN  => EW_Green(State => S.T_State),
+                          when EVENT_EW_YELLOW => EW_Yellow(State => S.T_State),
                           when others          => All_Red(State => S.T_State)
                      );
 
@@ -25,11 +28,17 @@ is
     begin
 
         Next_State := (case S.Next_Event is
-                           when EVENT_NS_GREEN => Make_State( EVENT_NS_YELLOW, Curr + 10, S.T_State),
+                           when EVENT_NS_GREEN  => Make_State( EVENT_NS_YELLOW, Curr + 5, S.T_State),
 
-                           when EVENT_NS_YELLOW => Make_State( EVENT_NS_RED, Curr + 1, S.T_State),
+                           when EVENT_NS_YELLOW => Make_State( EVENT_NS_RED, Curr + 2, S.T_State),
 
-                           when EVENT_NS_RED    => Make_State (EVENT_NS_GREEN, Curr + 10, S.T_State),
+                           when EVENT_NS_RED    => Make_State (EVENT_EW_GREEN, Curr + 2, S.T_State),
+
+                           when EVENT_EW_GREEN  => Make_State (EVENT_EW_YELLOW, Curr + 5, S.T_State),
+
+                           when EVENT_EW_YELLOW => Make_State (EVENT_EW_RED, Curr + 2, S.T_State),
+
+                           when EVENT_EW_RED => Make_State (EVENT_NS_GREEN, Curr + 2, S.T_State),
 
                            when others          => Make_State(NO_EVENT, Curr, S.T_State)
                       );
