@@ -6,13 +6,66 @@ is
 
     begin
 
-        if Curr mod 2 = 0 then
-            S.T_State := NS_Green(EW_Red(S.T_State));
-        else
-            S.T_State := EW_Green(NS_Red(S.T_State));
-        end if;
+        S.T_State := (case S.Next_Event is
+                          when EVENT_NS_GREEN  => NS_Green(State => S.T_State),
+                          when EVENT_NS_YELLOW => NS_Yellow(State => S.T_State),
+                          when EVENT_NS_RED    => NS_Red(State => S.T_State),
+                          when others          => All_Red(State => S.T_State)
+                     );
+
+        S := Schedule_Next_Event(S    => S,
+                                 Curr => Curr);
 
     end Control_Traffic;
+
+
+    function Schedule_Next_Event(S : System_State; Curr : Seconds_Count) return System_State
+    is
+        Next_State : System_State := Copy_State(S);
+    begin
+
+        Next_State := (case S.Next_Event is
+                           when EVENT_NS_GREEN => Make_State( EVENT_NS_YELLOW, Curr + 10, S.T_State),
+
+                           when EVENT_NS_YELLOW => Make_State( EVENT_NS_RED, Curr + 1, S.T_State),
+
+                           when EVENT_NS_RED    => Make_State (EVENT_NS_GREEN, Curr + 10, S.T_State),
+
+                           when others          => Make_State(NO_EVENT, Curr, S.T_State)
+                      );
+
+        return Next_State;
+
+    end Schedule_Next_Event;
+
+    function Copy_State(S: System_State) return System_State is
+        To_Return : System_State;
+    begin
+
+        To_Return := Make_State(NE      => S.Next_Event,
+                                NET     => S.Next_Event_Time,
+                                T_State => S.T_State);
+
+        return To_Return;
+
+    end Copy_State;
+
+    function Make_State(NE  : Event;
+                        NET     : Seconds_Count;
+                        T_State : Traffic_State ) return System_State
+    is
+        To_Return : System_State;
+    begin
+        To_Return.Next_Event := NE;
+        To_Return.Next_Event_Time := NET;
+        To_Return.T_State := Make_State(NS => T_State.Light_NS,
+                                       SN => T_State.Light_SN,
+                                       EW => T_State.Light_EW,
+                                        WE => T_State.Light_WE);
+
+        return To_Return;
+    end Make_State;
+
 
 
     function Make_State(NS, SN, EW, WE : Light_State) return Traffic_State
@@ -55,6 +108,11 @@ is
     begin
         return Make_State(State.Light_NS, State.Light_SN, YELLOW, YELLOW);
     end EW_Yellow;
+
+    function All_Red(State : Traffic_State) return Traffic_State is
+    begin
+        return Make_State(RED, RED, RED, RED);
+    end All_Red;
 
     function State_To_Number(S : Light_State) return Natural is
     begin

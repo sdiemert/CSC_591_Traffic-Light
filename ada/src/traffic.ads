@@ -4,7 +4,7 @@ package Traffic
 is
 
     type Light_State is (GREEN, YELLOW, RED);
-    type Event is (EVENT_NS_GREEN, EVENT_NS_RED, NO_EVENT);
+    type Event is (EVENT_NS_GREEN, EVENT_NS_RED, EVENT_NS_YELLOW, NO_EVENT);
 
     type Traffic_State is record
 
@@ -23,6 +23,8 @@ is
 
     end record;
 
+    function Schedule_Next_Event(S: System_State; Curr : Seconds_Count) return System_State;
+
     function NS_Safety_Traffic_Directions(S : Traffic_State) return Boolean
       is ( if S.Light_NS = GREEN or S.Light_SN = Green then S.Light_EW = RED and S.Light_WE = RED);
 
@@ -32,8 +34,17 @@ is
     function Safety_Traffic_Directions(S : Traffic_State) return Boolean
     is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
 
+    function Is_Equal(S1 : Traffic_State; S2 : Traffic_State) return Boolean
+    is (
+        S1.Light_NS = S2.Light_NS and
+          S1.Light_SN = S2.Light_SN and
+            S1.Light_EW = S2.Light_EW and
+              S1.Light_WE = S2.Light_WE
+       );
 
-    procedure Control_Traffic( S : in out System_State; Curr : Seconds_Count)
+
+
+    procedure Control_Traffic( S : in out System_State; Curr : in Seconds_Count)
       with
         Pre => Safety_Traffic_Directions(S.T_State),
         Post => Safety_Traffic_Directions(S.T_State);
@@ -46,7 +57,28 @@ is
                     Make_State'Result.Light_SN = SN and
                     Make_State'Result.Light_EW = EW and
                     Make_State'Result.Light_WE = WE
-                 );
+                );
+
+    function Make_State(NE  : Event;
+                        NET     : Seconds_Count;
+                        T_State : Traffic_State ) return System_State
+      with
+        Pre => True,
+        Post => (
+                   Make_State'Result.Next_Event = NE and
+                   Make_State'Result.Next_Event_Time = NET and
+                   Is_Equal(Make_State'Result.T_State, T_State)
+                );
+
+    function Copy_State( S : System_State) return System_State
+      with
+        Pre => True,
+        Post => (
+                   Copy_State'Result.Next_Event = S.Next_Event and
+                   Copy_State'Result.Next_Event_Time = S.Next_Event_Time and
+                   Is_Equal(Copy_State'Result.T_State, S.T_State)
+                );
+
 
     function NS_Green( State : Traffic_State ) return Traffic_State
       with
@@ -109,6 +141,15 @@ is
                     EW_Yellow'Result.Light_WE = YELLOW
                 );
 
+    function All_Red ( State : Traffic_State) return Traffic_State
+      with
+        Pre => True,
+        Post => (
+                    All_Red'Result.Light_NS = RED and
+                    All_Red'Result.Light_SN = RED and
+                    All_Red'Result.Light_EW = RED and
+                    All_Red'Result.Light_WE = RED
+                );
     function State_To_Number(S : Light_State) return Natural
       with
         Contract_Cases => (
