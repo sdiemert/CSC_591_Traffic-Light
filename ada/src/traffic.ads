@@ -47,12 +47,10 @@ is
               S1.Light_WE = S2.Light_WE
        );
 
-
-
-    procedure Control_Traffic( S : in out System_State; Curr : in Seconds_Count)
-      with
-        Pre => Safety_Traffic_Directions(S.T_State),
-        Post => Safety_Traffic_Directions(S.T_State);
+    procedure Control_Traffic(S : in out System_State; Curr : in Seconds_Count);
+      --with
+      --  Pre => Safety_Traffic_Directions(S.T_State),
+      --  Post => Safety_Traffic_Directions(S.T_State);
 
     function Make_State( NS, SN, EW, WE : Light_State) return Traffic_State
       with
@@ -146,7 +144,7 @@ is
                     EW_Yellow'Result.Light_WE = YELLOW
                 );
 
-    function All_Red ( State : Traffic_State) return Traffic_State
+    function All_Red return Traffic_State
       with
         Pre => True,
         Post => (

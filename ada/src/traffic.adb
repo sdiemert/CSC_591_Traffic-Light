@@ -2,19 +2,17 @@ package body Traffic
   with SPARK_Mode
 is
 
-    procedure Control_Traffic(S : in out System_State; Curr : Seconds_Count) is
-
+    procedure Control_Traffic(S : in out System_State; Curr : in Seconds_Count) is
     begin
-
-        S.T_State := (case S.Next_Event is
-                          when EVENT_NS_GREEN  => NS_Green(State => S.T_State),
-                          when EVENT_NS_YELLOW => NS_Yellow(State => S.T_State),
-                          when EVENT_NS_RED    => NS_Red(State => S.T_State),
-                          when EVENT_EW_RED    => EW_Red(State => S.T_State),
-                          when EVENT_EW_GREEN  => EW_Green(State => S.T_State),
-                          when EVENT_EW_YELLOW => EW_Yellow(State => S.T_State),
-                          when others          => All_Red(State => S.T_State)
-                     );
+        case S.Next_Event is
+            when EVENT_NS_GREEN  =>S.T_State  := NS_Green(State => S.T_State);
+            when EVENT_NS_YELLOW => S.T_State := NS_Yellow(State => S.T_State);
+            when EVENT_NS_RED    => S.T_State := NS_Red(State => S.T_State);
+            when EVENT_EW_RED    => S.T_State := EW_Red(State => S.T_State);
+            when EVENT_EW_GREEN  => S.T_State := EW_Green(State => S.T_State);
+            when EVENT_EW_YELLOW => S.T_State := EW_Yellow(State => S.T_State);
+            when others          => S.T_State := All_Red;
+        end case;
 
         S := Schedule_Next_Event(S    => S,
                                  Curr => Curr);
@@ -24,25 +22,17 @@ is
 
     function Schedule_Next_Event(S : System_State; Curr : Seconds_Count) return System_State
     is
-        Next_State : System_State := Copy_State(S);
+        Next_State : System_State;
     begin
-
-        Next_State := (case S.Next_Event is
-                           when EVENT_NS_GREEN  => Make_State( EVENT_NS_YELLOW, Curr + 5, S.T_State),
-
-                           when EVENT_NS_YELLOW => Make_State( EVENT_NS_RED, Curr + 2, S.T_State),
-
-                           when EVENT_NS_RED    => Make_State (EVENT_EW_GREEN, Curr + 2, S.T_State),
-
-                           when EVENT_EW_GREEN  => Make_State (EVENT_EW_YELLOW, Curr + 5, S.T_State),
-
-                           when EVENT_EW_YELLOW => Make_State (EVENT_EW_RED, Curr + 2, S.T_State),
-
-                           when EVENT_EW_RED => Make_State (EVENT_NS_GREEN, Curr + 2, S.T_State),
-
-                           when others          => Make_State(NO_EVENT, Curr, S.T_State)
-                      );
-
+        case S.Next_Event is
+            when EVENT_NS_GREEN  => Next_State :=  Make_State( EVENT_NS_YELLOW, Curr + 5, S.T_State);
+            when EVENT_NS_YELLOW => Next_State :=  Make_State( EVENT_NS_RED, Curr + 2, S.T_State);
+            when EVENT_NS_RED    => Next_State :=  Make_State (EVENT_EW_GREEN, Curr + 2, S.T_State);
+            when EVENT_EW_GREEN  => Next_State :=  Make_State (EVENT_EW_YELLOW, Curr + 5, S.T_State);
+            when EVENT_EW_YELLOW => Next_State := Make_State (EVENT_EW_RED, Curr + 2, S.T_State);
+            when EVENT_EW_RED    => Next_State :=  Make_State (EVENT_NS_GREEN, Curr + 2, S.T_State);
+            when others          => Next_State := Make_State(NO_EVENT, Curr, S.T_State);
+        end case;
         return Next_State;
 
     end Schedule_Next_Event;
@@ -118,7 +108,7 @@ is
         return Make_State(State.Light_NS, State.Light_SN, YELLOW, YELLOW);
     end EW_Yellow;
 
-    function All_Red(State : Traffic_State) return Traffic_State is
+    function All_Red return Traffic_State is
     begin
         return Make_State(RED, RED, RED, RED);
     end All_Red;
