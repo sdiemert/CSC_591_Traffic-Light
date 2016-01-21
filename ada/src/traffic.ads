@@ -11,6 +11,9 @@ is
                    NO_EVENT
                   );
 
+    THRU_TRAFFIC_TIME : constant Seconds_Count  := 5;
+    PAUSE_TRAFFIC_TIME : constant Seconds_Count := 2;
+
     type Traffic_State is record
 
         Light_NS : Light_State := RED;
@@ -28,7 +31,7 @@ is
 
     end record;
 
-    function Schedule_Next_Event(S: System_State; Curr : Seconds_Count) return System_State;
+
 
     function NS_Safety_Traffic_Directions(S : Traffic_State) return Boolean
       is ( if S.Light_NS = GREEN or S.Light_SN = Green then S.Light_EW = RED and S.Light_WE = RED);
@@ -37,20 +40,37 @@ is
       is ( if S.Light_EW = GREEN or S.Light_WE = Green  then S.Light_NS = RED and S.Light_SN = RED);
 
     function Safety_Traffic_Directions(S : Traffic_State) return Boolean
-    is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
+      is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
 
     function Is_Equal(S1 : Traffic_State; S2 : Traffic_State) return Boolean
-    is (
-        S1.Light_NS = S2.Light_NS and
-          S1.Light_SN = S2.Light_SN and
-            S1.Light_EW = S2.Light_EW and
-              S1.Light_WE = S2.Light_WE
-       );
+      is (
+          S1.Light_NS = S2.Light_NS and
+            S1.Light_SN = S2.Light_SN and
+              S1.Light_EW = S2.Light_EW and
+                S1.Light_WE = S2.Light_WE
+        );
 
-    procedure Control_Traffic(S : in out System_State; Curr : in Seconds_Count);
-      --with
-      --  Pre => Safety_Traffic_Directions(S.T_State),
-      --  Post => Safety_Traffic_Directions(S.T_State);
+    procedure Control_Traffic(S : in out System_State; Curr : in Seconds_Count)
+      with
+        Pre => (
+                  S.Next_Event_Time = Curr and
+                  Seconds_Count'Last > (Curr+THRU_TRAFFIC_TIME) and
+                  Safety_Traffic_Directions(S.T_State)
+               ),
+        Post => Safety_Traffic_Directions(S.T_State);
+
+    function Schedule_Next_Event(S: System_State; Curr : Seconds_Count) return System_State
+      with
+        Pre => (
+                  S.Next_Event_Time = Curr and
+                  Seconds_Count'Last > (Curr+THRU_TRAFFIC_TIME)
+               ),
+        Post => (
+                   Schedule_Next_Event'Result.Next_Event_Time /= Curr and
+                   Is_Equal(Schedule_Next_Event'Result.T_State, S.T_State) and
+                   (if S.Next_Event /= NO_EVENT then Schedule_Next_Event'Result.Next_Event /= S.Next_Event)
+                );
+
 
     function Make_State( NS, SN, EW, WE : Light_State) return Traffic_State
       with

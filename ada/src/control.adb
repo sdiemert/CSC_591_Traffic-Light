@@ -39,19 +39,20 @@ is
         State.Next_Event := EVENT_NS_GREEN;
         State.Next_Event_Time := Get_Seconds + 5;
 
-        loop
+        S := Get_Seconds;
 
-            S := Get_Seconds;
+        while S < (Seconds_Count'Last - THRU_TRAFFIC_TIME) loop
 
             if S = State.Next_Event_Time then
-                Control_Traffic(S    => State,
-                                Curr => S);
+                Control_Traffic(S => State, Curr => S);
             end if;
 
-            -- Print the state once a second.
             if S > S_Prev then Write_State(State.T_State); end if;
 
+            pragma Loop_Invariant(Safety_Traffic_Directions(State.T_State));
+
             S_Prev := S;
+            S := Get_Seconds;
 
         end loop;
 
