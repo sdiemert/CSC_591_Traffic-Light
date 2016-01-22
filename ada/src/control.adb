@@ -35,10 +35,8 @@ is
     begin
 
         Result := False;
-
         State.Next_Event := EVENT_NS_GREEN;
-        State.Next_Event_Time := Get_Seconds + 5;
-
+        State.Next_Event_Time := Get_Seconds + 3;
         S := Get_Seconds;
 
         while S < (Seconds_Count'Last - THRU_TRAFFIC_TIME) loop

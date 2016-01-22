@@ -6,17 +6,16 @@ is
     begin
 
         case S.Next_Event is
-            when EVENT_NS_GREEN  => S.T_State := NS_Green(State => S.T_State);
-            when EVENT_NS_YELLOW => S.T_State := NS_Yellow(State => S.T_State);
-            when EVENT_NS_RED    => S.T_State := NS_Red(State => S.T_State);
-            when EVENT_EW_RED    => S.T_State := EW_Red(State => S.T_State);
-            when EVENT_EW_GREEN  => S.T_State := EW_Green(State => S.T_State);
-            when EVENT_EW_YELLOW => S.T_State := EW_Yellow(State => S.T_State);
+            when EVENT_NS_GREEN  => S.T_State := EW_Red(NS_Green(State => S.T_State));
+            when EVENT_NS_YELLOW => S.T_State := EW_Red(NS_Yellow(State => S.T_State));
+            when EVENT_NS_RED    => S.T_State := EW_Red(NS_Red(State => S.T_State));
+            when EVENT_EW_RED    => S.T_State := NS_Red(EW_Red(State => S.T_State));
+            when EVENT_EW_GREEN  => S.T_State := NS_Red(EW_Green(State => S.T_State));
+            when EVENT_EW_YELLOW => S.T_State := NS_Red(EW_Yellow(State => S.T_State));
             when others          => S.T_State := All_Red;
         end case;
 
         S := Schedule_Next_Event(S => S, Curr => Curr);
-
 
     end Control_Traffic;
 

@@ -34,10 +34,12 @@ is
 
 
     function NS_Safety_Traffic_Directions(S : Traffic_State) return Boolean
-      is ( if S.Light_NS = GREEN or S.Light_SN = Green then S.Light_EW = RED and S.Light_WE = RED);
+    is ( if S.Light_NS = GREEN or S.Light_SN = Green or S.Light_NS = YELLOW or
+          S.LIGHT_SN = YELLOW then S.Light_EW = RED and S.Light_WE = RED);
 
     function EW_Safety_Traffic_Directions(S : Traffic_State) return Boolean
-      is ( if S.Light_EW = GREEN or S.Light_WE = Green  then S.Light_NS = RED and S.Light_SN = RED);
+    is ( if S.Light_EW = GREEN or S.Light_WE = Green or S.Light_EW=YELLOW or
+          S.LIGHT_WE=YELLOW then S.Light_NS = RED and S.Light_SN = RED);
 
     function Safety_Traffic_Directions(S : Traffic_State) return Boolean
       is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
@@ -54,21 +56,25 @@ is
       with
         Pre => (
                   S.Next_Event_Time = Curr and
-                  Seconds_Count'Last > (Curr+THRU_TRAFFIC_TIME) and
-                  Safety_Traffic_Directions(S.T_State)
+                  (Curr > 0 and then Seconds_Count'Last - Curr > THRU_TRAFFIC_TIME) and
+                      Safety_Traffic_Directions(S.T_State)
                ),
-        Post => Safety_Traffic_Directions(S.T_State);
+        Post => (
+                   Safety_Traffic_Directions(S.T_State)
+                );
 
     function Schedule_Next_Event(S: System_State; Curr : Seconds_Count) return System_State
       with
         Pre => (
                   S.Next_Event_Time = Curr and
-                  Seconds_Count'Last > (Curr+THRU_TRAFFIC_TIME)
+                  (Curr > 0 and then Seconds_Count'Last - Curr > THRU_TRAFFIC_TIME)
                ),
         Post => (
-                   Schedule_Next_Event'Result.Next_Event_Time /= Curr and
+                   Schedule_Next_Event'Result.Next_Event_Time >= Curr and
+                   Schedule_Next_Event'Result.Next_Event_Time >= S.Next_Event_Time and
                    Is_Equal(Schedule_Next_Event'Result.T_State, S.T_State) and
                    (if S.Next_Event /= NO_EVENT then Schedule_Next_Event'Result.Next_Event /= S.Next_Event)
+
                 );
 
 
