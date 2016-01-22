@@ -36,16 +36,19 @@ is
 
         Result := False;
         State.Next_Event := EVENT_NS_GREEN;
-        State.Next_Event_Time := Get_Seconds + 3;
+        State.T_State := All_Red;
         S := Get_Seconds;
+        State.Next_Event_Time := S + 3;
 
-        while S < (Seconds_Count'Last - THRU_TRAFFIC_TIME) loop
+        loop
 
             if S = State.Next_Event_Time then
                 Control_Traffic(S => State, Curr => S);
             end if;
 
-            if S > S_Prev then Write_State(State.T_State); end if;
+            if S > S_Prev then
+                Write_State(State.T_State);
+            end if;
 
             pragma Loop_Invariant(Safety_Traffic_Directions(State.T_State));
 

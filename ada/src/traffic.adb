@@ -29,9 +29,9 @@ is
             when EVENT_NS_YELLOW => Next_State :=  Make_State( EVENT_NS_RED, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
             when EVENT_NS_RED    => Next_State :=  Make_State (EVENT_EW_GREEN, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
             when EVENT_EW_GREEN  => Next_State :=  Make_State (EVENT_EW_YELLOW, Curr + THRU_TRAFFIC_TIME, S.T_State);
-            when EVENT_EW_YELLOW => Next_State := Make_State (EVENT_EW_RED, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
-            when EVENT_EW_RED    => Next_State :=  Make_State (EVENT_NS_GREEN, Curr + THRU_TRAFFIC_TIME, S.T_State);
-            when others          => Next_State := Make_State(NO_EVENT, Curr, S.T_State);
+            when EVENT_EW_YELLOW => Next_State :=  Make_State (EVENT_EW_RED, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
+            when EVENT_EW_RED    => Next_State :=  Make_State (EVENT_NS_GREEN, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
+            when others          => Next_State :=  Make_State(NO_EVENT, Curr, S.T_State);
         end case;
         return Next_State;
 

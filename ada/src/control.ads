@@ -8,7 +8,10 @@ is
     function Get_Seconds return Seconds_Count
       with
         Pre => True,
-        Post => Get_Seconds'Result > 0;
+        Post => (
+                   Get_Seconds'Result > 0 and
+                     Seconds_Count'Last - Get_Seconds'Result > THRU_TRAFFIC_TIME
+                );
 
     procedure Main_Loop(Result : out Boolean) with SPARK_Mode;
 
