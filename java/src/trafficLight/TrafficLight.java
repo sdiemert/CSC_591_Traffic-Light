@@ -64,9 +64,6 @@ public class TrafficLight implements Runnable {
 
 		String line = "";
 		
-		 Pattern p = Pattern.compile("[0-9]\\s,[0-9]\\s,[0-9]\\s,[0-9]\\s?");
-		 Matcher m;
-		
 		try {
 			
 			Process process = new ProcessBuilder(
@@ -78,16 +75,8 @@ public class TrafficLight implements Runnable {
 							
 			while ((line = br.readLine()) != null) {				
 				  line = line.trim();
-				  
-				  m = p.matcher(line);
-				  
 				  System.out.println(line);
-				  //System.out.println(m.matches());
-				  
-				  //if(m.matches()){
-
-					  this.updateModel(line);
-				  //}
+				  this.updateModel(line);
 				  Thread.sleep(100);				  
 			}
 
@@ -106,6 +95,4 @@ public class TrafficLight implements Runnable {
       }
    }
 	
-	
-
 }

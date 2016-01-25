@@ -7,15 +7,6 @@ procedure Main is
     B : Boolean;
 begin
 
-    loop
-
-        --Current := Clock;
-        --Put_Line(Seconds_Count'Image(Make_Seconds(Current)));
-        --Control_Traffic(S => S, Curr => Make_Seconds(Current));
-        --Write_State(S.T_State);
-        Main_Loop(B);
-
-   end loop;
-
+    Main_Loop(B);
 
 end Main;
