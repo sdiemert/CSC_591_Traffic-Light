@@ -5,10 +5,7 @@ is
 
     type Light_State is (GREEN, YELLOW, RED);
 
-    type Event is (
-                   EVENT_NS_GREEN, EVENT_NS_RED, EVENT_NS_YELLOW,
-                   EVENT_EW_GREEN, EVENT_EW_RED, EVENT_EW_YELLOW
-                  );
+    type Event is range 0 .. 6;
 
     THRU_TRAFFIC_TIME : constant Seconds_Count  := 5;
     PAUSE_TRAFFIC_TIME : constant Seconds_Count := 2;
@@ -22,16 +19,6 @@ is
 
     end record;
 
-    type System_State is record
-
-        T_State         : Traffic_State;
-        Next_Event_Time : Seconds_Count := 0;
-        Next_Event      : Event   := Event_NS_Green;
-
-    end record;
-
-
-
     function NS_Safety_Traffic_Directions(S : Traffic_State) return Boolean
     is ( if S.Light_NS = GREEN or S.Light_SN = Green or S.Light_NS = YELLOW or
           S.LIGHT_SN = YELLOW then S.Light_EW = RED and S.Light_WE = RED);
@@ -41,7 +28,10 @@ is
           S.LIGHT_WE=YELLOW then S.Light_NS = RED and S.Light_SN = RED);
 
     function Safety_Traffic_Directions(S : Traffic_State) return Boolean
-      is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
+    is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
+
+    function State_Is_All_Red(S : Traffic_State) return Boolean
+      is (S.Light_NS = RED and S.Light_SN = RED and S.Light_EW = RED and  S.Light_WE = RED);
 
     function Is_Equal(S1 : Traffic_State; S2 : Traffic_State) return Boolean
       is (
@@ -49,7 +39,7 @@ is
             S1.Light_SN = S2.Light_SN and
               S1.Light_EW = S2.Light_EW and
                 S1.Light_WE = S2.Light_WE
-        );
+         );
 
 
     function Make_State( NS, SN, EW, WE : Light_State) return Traffic_State
@@ -61,27 +51,6 @@ is
                     Make_State'Result.Light_EW = EW and
                     Make_State'Result.Light_WE = WE
                 );
-
-    function Make_State(NE  : Event;
-                        NET     : Seconds_Count;
-                        T_State : Traffic_State ) return System_State
-      with
-        Pre => True,
-        Post => (
-                   Make_State'Result.Next_Event = NE and
-                   Make_State'Result.Next_Event_Time = NET and
-                   Is_Equal(Make_State'Result.T_State, T_State)
-                );
-
-    function Copy_State( S : System_State) return System_State
-      with
-        Pre => True,
-        Post => (
-                   Copy_State'Result.Next_Event = S.Next_Event and
-                   Copy_State'Result.Next_Event_Time = S.Next_Event_Time and
-                   Is_Equal(Copy_State'Result.T_State, S.T_State)
-                );
-
 
     function NS_Green( State : Traffic_State ) return Traffic_State
       with
