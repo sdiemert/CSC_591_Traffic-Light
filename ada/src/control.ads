@@ -5,6 +5,16 @@ package Control
    with SPARK_Mode
 is
 
+    type Variant is range 0 .. 6;
+
+    type Tracker is record
+        NS_Was_Green  : Boolean := False;
+        NS_Was_Yellow : Boolean := False;
+        EW_Was_Green  : Boolean := False;
+        EW_Was_Yellow : Boolean := False;
+    end record;
+
+
     function Get_Seconds return Seconds_Count
       with
         Pre => True,

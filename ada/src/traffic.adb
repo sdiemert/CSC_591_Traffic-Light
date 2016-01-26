@@ -2,41 +2,6 @@ package body Traffic
   with SPARK_Mode
 is
 
-    procedure Control_Traffic(S : in out System_State; Curr : in Seconds_Count) is
-    begin
-
-        case S.Next_Event is
-            when EVENT_NS_GREEN  => S.T_State := EW_Red(NS_Green(State => S.T_State));
-            when EVENT_NS_YELLOW => S.T_State := EW_Red(NS_Yellow(State => S.T_State));
-            when EVENT_NS_RED    => S.T_State := EW_Red(NS_Red(State => S.T_State));
-            when EVENT_EW_RED    => S.T_State := NS_Red(EW_Red(State => S.T_State));
-            when EVENT_EW_GREEN  => S.T_State := NS_Red(EW_Green(State => S.T_State));
-            when EVENT_EW_YELLOW => S.T_State := NS_Red(EW_Yellow(State => S.T_State));
-            when others          => S.T_State := All_Red;
-        end case;
-
-        S := Schedule_Next_Event(S => S, Curr => Curr);
-
-    end Control_Traffic;
-
-
-    function Schedule_Next_Event(S : System_State; Curr : Seconds_Count) return System_State
-    is
-        Next_State : System_State;
-    begin
-        case S.Next_Event is
-            when EVENT_NS_GREEN  => Next_State :=  Make_State( EVENT_NS_YELLOW, Curr + THRU_TRAFFIC_TIME, S.T_State);
-            when EVENT_NS_YELLOW => Next_State :=  Make_State( EVENT_NS_RED, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
-            when EVENT_NS_RED    => Next_State :=  Make_State (EVENT_EW_GREEN, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
-            when EVENT_EW_GREEN  => Next_State :=  Make_State (EVENT_EW_YELLOW, Curr + THRU_TRAFFIC_TIME, S.T_State);
-            when EVENT_EW_YELLOW => Next_State :=  Make_State (EVENT_EW_RED, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
-            when EVENT_EW_RED    => Next_State :=  Make_State (EVENT_NS_GREEN, Curr + PAUSE_TRAFFIC_TIME, S.T_State);
-            when others          => Next_State :=  Make_State(NO_EVENT, Curr, S.T_State);
-        end case;
-        return Next_State;
-
-    end Schedule_Next_Event;
-
     function Copy_State(S: System_State) return System_State is
         To_Return : System_State;
     begin

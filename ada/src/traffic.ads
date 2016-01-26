@@ -7,8 +7,7 @@ is
 
     type Event is (
                    EVENT_NS_GREEN, EVENT_NS_RED, EVENT_NS_YELLOW,
-                   EVENT_EW_GREEN, EVENT_EW_RED, EVENT_EW_YELLOW,
-                   NO_EVENT
+                   EVENT_EW_GREEN, EVENT_EW_RED, EVENT_EW_YELLOW
                   );
 
     THRU_TRAFFIC_TIME : constant Seconds_Count  := 5;
@@ -27,7 +26,7 @@ is
 
         T_State         : Traffic_State;
         Next_Event_Time : Seconds_Count := 0;
-        Next_Event      : Event   := NO_EVENT;
+        Next_Event      : Event   := Event_NS_Green;
 
     end record;
 
@@ -51,31 +50,6 @@ is
               S1.Light_EW = S2.Light_EW and
                 S1.Light_WE = S2.Light_WE
         );
-
-    procedure Control_Traffic(S : in out System_State; Curr : in Seconds_Count)
-      with
-        Pre => (
-                  S.Next_Event_Time = Curr and
-                  (Curr > 0 and then Seconds_Count'Last - Curr > THRU_TRAFFIC_TIME) and
-                      Safety_Traffic_Directions(S.T_State)
-               ),
-        Post => (
-                   Safety_Traffic_Directions(S.T_State)
-                );
-
-    function Schedule_Next_Event(S: System_State; Curr : Seconds_Count) return System_State
-      with
-        Pre => (
-                  S.Next_Event_Time = Curr and
-                  (Curr > 0 and then Seconds_Count'Last - Curr > THRU_TRAFFIC_TIME)
-               ),
-        Post => (
-                   Schedule_Next_Event'Result.Next_Event_Time >= Curr and
-                   Schedule_Next_Event'Result.Next_Event_Time >= S.Next_Event_Time and
-                   Is_Equal(Schedule_Next_Event'Result.T_State, S.T_State) and
-                   (if S.Next_Event /= NO_EVENT then Schedule_Next_Event'Result.Next_Event /= S.Next_Event)
-
-                );
 
 
     function Make_State( NS, SN, EW, WE : Light_State) return Traffic_State
