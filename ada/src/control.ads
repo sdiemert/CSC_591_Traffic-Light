@@ -10,16 +10,8 @@ is
     type Tracker is array (Variant) of Boolean;
 
     function Liveliness(T : Tracker; V : Variant) return Boolean
-    is (for all I in Variant'Range => (if I <= V then T(I) = True));
+       is (for all I in Variant'Range => (if I <= V then T(I) = True));
 
-
-    function Get_Seconds return Seconds_Count
-      with
-        Pre => True,
-        Post => (
-                   Get_Seconds'Result > 0 and
-                     Seconds_Count'Last - Get_Seconds'Result > THRU_TRAFFIC_TIME
-                );
 
     procedure Main_Loop(Result : out Boolean) with SPARK_Mode;
 

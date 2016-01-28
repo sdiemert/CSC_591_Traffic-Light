@@ -5,6 +5,38 @@ package body Control
 
 is
 
+    procedure Wait_One_Second with SPARK_Mode is
+        Q  : Integer := Integer'Last;
+        T1 : Time    := Clock;
+        T2 : Time    := Clock + Seconds(1);
+    begin
+
+        -- Closest approxmiation to a one-second
+        -- timer I could make while still being able
+        -- to prove termination of the loop.
+
+        while Q > 0 and T1 <= T2 loop
+
+            T1 := Clock;
+            Q  := Q - 1;
+
+        end loop;
+
+    end Wait_One_Second;
+
+
+    procedure Wait_For_Seconds (S : Natural) with SPARK_Mode is
+         I : Natural := S;
+    begin
+
+        while I > 0 loop
+            Wait_One_Second;
+            I := I - 1;
+        end loop;
+
+
+    end Wait_For_Seconds;
+
     procedure Write_State( State : in Traffic_State) is
     begin
 
@@ -15,34 +47,16 @@ is
 
     end Write_State;
 
-    function Get_Seconds return Seconds_Count is
-        Other : Time_Span;
-        Secs  : Seconds_Count;
-        T : Time;
-    begin
-        T := Clock;
-        Split(T  => T,
-              SC => Secs,
-              TS => Other);
-        return Secs;
-    end Get_Seconds;
-
     procedure Traffic_Loop(State  : in out Traffic_State) with SPARK_Mode
     is
-        S, S_Prev, Next_Event_Time : Seconds_Count;
+        Delay_Time : Natural;
         V                          : Variant;
         Track                      : Tracker;
     begin
-
-        S               := Get_Seconds;
-        S_Prev          := Get_Seconds;
-        Next_Event_Time := S + 2;
         V               := 0;
         Track           := (others => False);
 
         while Variant'Last - V > 0 loop
-
-            if S = Next_Event_Time then
 
                 case V is
                     when 0      => State := NS_Green(EW_Red(State));
@@ -53,28 +67,20 @@ is
                 end case;
 
                 case V is
-                    when 0|3      => Next_Event_Time := S + 5;
-                    when others   => Next_Event_Time := S + 2;
+                    when 0|3      => Delay_Time := 5;
+                    when others   => Delay_Time := 2;
                 end case;
-
-                V := V + 1;
 
                 Track(V) := True;
 
-            end if;
+            Write_State(State);
 
-            if S > S_Prev then
-                Write_State(State);
-            end if;
+            V := V + 1;
 
-            S_Prev := S;
-            S := Get_Seconds;
+            Wait_For_Seconds (Delay_Time);
 
-            pragma Loop_Invariant(
-                                  Safety_Traffic_Directions(State) and
-                                  Liveliness(Track, V)
-                                 );
 
+            pragma Loop_Invariant(Safety_Traffic_Directions(State) and Liveliness(Track, V));
             pragma Loop_Variant(Increases => V);
 
         end loop;
