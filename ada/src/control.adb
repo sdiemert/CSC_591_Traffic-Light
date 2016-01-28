@@ -5,10 +5,20 @@ package body Control
 
 is
 
-    procedure Wait_One_Second with SPARK_Mode is
+    function Get_Time return Time is
+    begin
+        return Clock;
+    end Get_Time;
+
+    function Get_Next_Second_Time(T : Time) return Time is
+    begin
+        return T + Seconds(1);
+    end Get_Next_Second_Time;
+
+    function Wait_One_Second return Boolean with SPARK_Mode is
         Q  : Integer := Integer'Last;
-        T1 : Time    := Clock;
-        T2 : Time    := Clock + Seconds(1);
+        T1 : Time    := Get_Time;
+        T2 : Time    := Get_Next_Second_Time(T1);
     begin
 
         -- Closest approxmiation to a one-second
@@ -17,23 +27,34 @@ is
 
         while Q > 0 and T1 <= T2 loop
 
-            T1 := Clock;
+            T1 := Get_Time;
             Q  := Q - 1;
 
+            pragma Loop_Invariant(Q >= 0);
+            pragma Loop_Variant(Decreases => Q);
+
         end loop;
+
+        return True;
 
     end Wait_One_Second;
 
 
-    procedure Wait_For_Seconds (S : Natural) with SPARK_Mode is
-         I : Natural := S;
+    function Wait_For_Seconds (S : Natural) return Boolean with SPARK_Mode is
+        I : Natural := S;
+        B : Boolean := False;
     begin
 
         while I > 0 loop
-            Wait_One_Second;
+            B := Wait_One_Second;
             I := I - 1;
+
+            pragma Loop_Invariant(I >= 0);
+            pragma Loop_Variant(Decreases => I);
+
         end loop;
 
+        return B;
 
     end Wait_For_Seconds;
 
@@ -50,35 +71,33 @@ is
     procedure Traffic_Loop(State  : in out Traffic_State) with SPARK_Mode
     is
         Delay_Time : Natural;
-        V                          : Variant;
-        Track                      : Tracker;
+        V          : Variant := 0;
+        Track      : Tracker := (others => False);
+        B          : Boolean := False;
     begin
-        V               := 0;
-        Track           := (others => False);
 
         while Variant'Last - V > 0 loop
 
-                case V is
-                    when 0      => State := NS_Green(EW_Red(State));
-                    when 1      => State := NS_Yellow(EW_Red(State));
-                    when 3      => State := NS_Red(EW_Green(State));
-                    when 4      => State := NS_Red(EW_Yellow(State));
-                    when others => State := All_Red;
-                end case;
+            case V is
+                when 0      => State := NS_Green(EW_Red(State));
+                when 1      => State := NS_Yellow(EW_Red(State));
+                when 3      => State := NS_Red(EW_Green(State));
+                when 4      => State := NS_Red(EW_Yellow(State));
+                when others => State := All_Red;
+            end case;
 
-                case V is
-                    when 0|3      => Delay_Time := 5;
-                    when others   => Delay_Time := 2;
-                end case;
+            case V is
+                when 0|3      => Delay_Time := 5;
+                when others   => Delay_Time := 2;
+            end case;
 
-                Track(V) := True;
-
-            Write_State(State);
+            Track(V) := True;
 
             V := V + 1;
 
-            Wait_For_Seconds (Delay_Time);
+            Write_State(State);
 
+            B := Wait_For_Seconds(Delay_Time);
 
             pragma Loop_Invariant(Safety_Traffic_Directions(State) and Liveliness(Track, V));
             pragma Loop_Variant(Increases => V);

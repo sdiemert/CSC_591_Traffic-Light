@@ -19,17 +19,6 @@ is
 
     end record;
 
-    function NS_Safety_Traffic_Directions(S : Traffic_State) return Boolean
-    is ( if S.Light_NS = GREEN or S.Light_SN = Green or S.Light_NS = YELLOW or
-          S.LIGHT_SN = YELLOW then S.Light_EW = RED and S.Light_WE = RED);
-
-    function EW_Safety_Traffic_Directions(S : Traffic_State) return Boolean
-    is ( if S.Light_EW = GREEN or S.Light_WE = Green or S.Light_EW=YELLOW or
-          S.LIGHT_WE=YELLOW then S.Light_NS = RED and S.Light_SN = RED);
-
-    function Safety_Traffic_Directions(S : Traffic_State) return Boolean
-    is ( NS_Safety_Traffic_Directions(S) and EW_Safety_Traffic_Directions(S));
-
     function State_Is_All_Red(S : Traffic_State) return Boolean
       is (S.Light_NS = RED and S.Light_SN = RED and S.Light_EW = RED and  S.Light_WE = RED);
 
